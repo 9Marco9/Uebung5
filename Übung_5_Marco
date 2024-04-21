@@ -1,0 +1,141 @@
+
+
+import sys  
+from PyQt5.QtCore import * 
+from PyQt5.QtWidgets import * 
+from PyQt5.QtGui import *
+
+import urllib.parse
+
+
+class MyWindow(QMainWindow):
+    
+    def __init__(self):
+        super().__init__()  
+
+        self.setWindowTitle("GUI - Programmierung")  
+       
+        layout = QFormLayout()
+        self.setMinimumSize(800,500)
+
+        
+        self.Vorname = QLineEdit()
+        self.Name = QLineEdit()
+        self.Geburtstag = QDateEdit()
+        self.Adresse = QLineEdit()
+        self.Postleitzahl = QLineEdit()
+        self.Ort = QLineEdit()
+        self.Land = QComboBox()
+        self.Button = QPushButton("Save")
+        self.Button2 =QPushButton("Laden")
+        self.Button3 =QPushButton("Auf Karte Anzeigen")
+
+        
+        self.Land.addItems(["Schweiz", "Deutschland", "Österreich"])
+
+        
+        layout.addRow("Vorname:", self.Vorname)
+        layout.addRow("Name:", self.Name)
+        layout.addRow("Geburtstag:", self.Geburtstag)
+        layout.addRow("Adresse:", self.Adresse)
+        layout.addRow("Postleitzahl:", self.Postleitzahl)
+        layout.addRow("Ort:", self.Ort)
+        layout.addRow("Land:", self.Land)
+
+        layout.addRow(self.Button)
+        layout.addRow(self.Button2)
+        layout.addRow(self.Button3)
+
+
+
+        
+        menubar = self.menuBar()
+        filemen1 = menubar.addMenu("File")
+        filemen2 = menubar.addMenu ("View")
+
+        
+        self.save = QAction("Save", self)
+        self.quit = QAction("Quit", self)
+
+        
+        filemen1.addAction("Save",self.speichern)
+        filemen1.addSeparator()
+        filemen1.addAction("Quit",self.ende)
+        filemen1.addSeparator()
+
+        filemen2.addAction("Karte",self.aufKarte)
+        filemen2.addSeparator()
+        filemen2.addAction("Laden",self.laden)
+        filemen2.addSeparator()
+
+        
+        self.Button.clicked.connect(self.aufKarte)
+        self.Button2.clicked.connect(self.laden)
+        self.Button3.clicked.connect(self.speichern)
+
+      
+        center = QWidget()
+        center.setLayout(layout)
+        self.setCentralWidget(center)
+
+       
+        self.show()
+
+    def aufKarte(self):
+        addresse = f"{self.Adresse.text()}+{self.Postleitzahl()}+{self.Ort.text()}+{self.Land.currentText()}"
+        query = urllib.parse.quote(addresse)
+        link = f"https://www.google.ch/maps/place/{query}"
+        QDesktopServices.openUrl(QUrl(link))
+
+    def laden(self):
+        filename, type = QFileDialog.getOpenFileName(self, "Datei öffnen",
+                                                     "", 
+                                                     "Textfile (*.txt)")
+        file = open(filename, "r")
+        daten = file.read().split(", ")
+        print(daten)
+        self.Vorname(daten[0])
+        self.Name(daten[1])
+        self.Geburtstag(QDate.fromString(daten[2], "dd/MM/yyyy"))
+        self.Adresse(daten[3])
+        self.Postleitzahl(daten[4])
+        self.Ort(daten[5])
+        index = self.Land.findText(daten[6], Qt.MatchFixedString)
+        self.Land.setCurrentIndex(index)
+
+
+
+
+    def speichern(self):
+        filename, typ= QFileDialog.getSaveFileName(self, "Datei Speichern",
+                                                   "",
+                                                   "Txt (*.txt)")
+        file = open(filename, "w")
+        daten = [self.Vorname.text(), 
+                 self.Name.text(), 
+                 self.Geburtstag.text(), 
+                 self.Adresse.text(), 
+                 self.Postleitzahl.text(), 
+                 self.Ort.text(), 
+                 self.Land.currentText()
+                 ]
+        daten_2= ", ".join(str(i) for i in daten)
+        file.write (daten_2)
+        file.close()
+        QMessageBox.information(self, "Speichern", "Daten wurden erfolgreich gespeichert!", QMessageBox.Ok)
+        
+        
+    def ende(self):
+        sys.exit()
+        #self.close() geht auch  
+
+
+    
+def main():
+    app = QApplication(sys.argv)  
+    mainwindow = MyWindow()  
+    mainwindow.raise_()  
+    app.exec_()  
+
+if __name__ == '__main__':
+    main()  
