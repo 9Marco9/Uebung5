@@ -69,9 +69,9 @@ class MyWindow(QMainWindow):
         filemen2.addSeparator()
 
         
-        self.Button.clicked.connect(self.aufKarte)
+        self.Button.clicked.connect(self.speichern)
         self.Button2.clicked.connect(self.laden)
-        self.Button3.clicked.connect(self.speichern)
+        self.Button3.clicked.connect(self.aufKarte)
 
       
         center = QWidget()
@@ -82,7 +82,7 @@ class MyWindow(QMainWindow):
         self.show()
 
     def aufKarte(self):
-        addresse = f"{self.Adresse.text()}+{self.Postleitzahl()}+{self.Ort.text()}+{self.Land.currentText()}"
+        addresse = f"{self.Adresse.text()}+{self.Postleitzahl.text()}+{self.Ort.text()}+{self.Land.currentText()}"
         query = urllib.parse.quote(addresse)
         link = f"https://www.google.ch/maps/place/{query}"
         QDesktopServices.openUrl(QUrl(link))
